@@ -3,7 +3,8 @@ package com.example.springboot;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Minimax {
+public class BigMinimax {
+
     public void printBoard(char[] board) {
         for (int i = 0; i < 9; i++) {
             System.out.print(board[i] + " ");

@@ -12,7 +12,7 @@ public class Main {
             board[i] = ' ';
         }
 
-        Minimax m = new Minimax();
+        SmallMinimax m = new SmallMinimax();
         int plays = 0;
         boolean playerTurn = true;
         while (true) {
