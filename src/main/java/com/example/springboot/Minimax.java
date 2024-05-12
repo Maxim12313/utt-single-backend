@@ -4,7 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class Minimax {
-    public static void printBoard(char[] board) {
+    public void printBoard(char[] board) {
         for (int i = 0; i < 9; i++) {
             System.out.print(board[i] + " ");
             if (i % 3 == 2) {
@@ -13,7 +13,7 @@ public class Minimax {
         }
     }
 
-    public static int playRandom(char[] board) {
+    public int playRandom(char[] board) {
         int rand;
         do {
             rand = (int) (Math.random() * 9);
@@ -22,7 +22,7 @@ public class Minimax {
     }
 
 
-    public static int getWinningLines(char[] board, char a) {
+    public int getWinningLines(char[] board, char a) {
         int count = 0;
         for (int i = 0; i < 3; i++) {
             int j = i * 3;
@@ -42,7 +42,7 @@ public class Minimax {
         return count;
     }
 
-    public static boolean isWinnableLine(char[] board, int[] ind, char a) {
+    public boolean isWinnableLine(char[] board, int[] ind, char a) {
         char b = a == 'x' ? 'o' : 'x';
         int i0 = ind[0];
         int i1 = ind[1];
@@ -53,7 +53,7 @@ public class Minimax {
         return false;
     }
 
-    public static int evaluate(char[] board, char winner) {
+    public int evaluate(char[] board, char winner) {
         System.out.println("evaluating: ");
         printBoard(board);
         int res;
@@ -70,7 +70,7 @@ public class Minimax {
         return res;
     }
 
-    public static boolean isWinningLine(char[] board, int[] ind, char a) {
+    public boolean isWinningLine(char[] board, int[] ind, char a) {
         int i0 = ind[0];
         int i1 = ind[1];
         int i2 = ind[2];
@@ -78,7 +78,7 @@ public class Minimax {
     }
 
     //true if is winnable for a
-    public static char getWinner(char[] board) {
+    public char getWinner(char[] board) {
         char x = 'x';
         char o = 'o';
 
@@ -105,7 +105,7 @@ public class Minimax {
     }
 
     //x is playing
-    public static int maxChildEval(char[] board, int depth, int plays) {
+    public int maxChildEval(char[] board, int depth, int plays, int alpha, int beta) {
         char winner = getWinner(board);
         if (plays == 9 || winner != ' ' || depth == 0) return evaluate(board, winner);
         else {
@@ -114,17 +114,22 @@ public class Minimax {
                 if (board[i] != ' ') continue;
 
                 board[i] = 'x';
-                int eval = minChildEval(board, depth - 1, plays + 1);
+                int eval = minChildEval(board, depth - 1, plays + 1, alpha, beta);
                 board[i] = ' ';
 
                 maxEval = max(maxEval, eval);
+                alpha = max(alpha, eval);
+
+                //if this state is chosen, the value is guaranteed to be at least eval good for max player and bad for min player
+                //if min player can guarantee a better value for themselves by not coming here, this state won't be chosen
+                if (beta <= eval) break;
             }
             return maxEval;
         }
     }
 
     //o is playing
-    public static int minChildEval(char[] board, int depth, int plays) {
+    public int minChildEval(char[] board, int depth, int plays, int alpha, int beta) {
         char winner = getWinner(board);
         if (plays == 9 || winner != ' ' || depth == 0) return evaluate(board, winner);
         else {
@@ -133,16 +138,23 @@ public class Minimax {
                 if (board[i] != ' ') continue;
 
                 board[i] = 'o';
-                int eval = maxChildEval(board, depth - 1, plays + 1);
+                int eval = maxChildEval(board, depth - 1, plays + 1, alpha, beta);
                 board[i] = ' ';
 
                 minEval = min(minEval, eval);
+                beta = min(beta, eval);
+
+                //if this state is chosen, the value is guaranteed to be at least eval good for min player and bad for max player
+                //if max player can guarantee a better value for themselves by not coming here, this state won't be chosen
+                if (minEval <= alpha) break;
             }
             return minEval;
         }
     }
 
-    public static int minimaxHelper(char[] board, char turn, int depth, int plays) {
+    public int minimaxHelper(char[] board, char turn, int depth, int plays) {
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
         int idx = 0;
         if (turn == 'x') { //max of next min children
             int maxEval = Integer.MIN_VALUE;
@@ -150,10 +162,10 @@ public class Minimax {
                 if (board[i] != ' ') continue;
 
                 board[i] = 'x';
-                int eval = minChildEval(board, depth - 1, plays + 1);
+                int eval = minChildEval(board, depth - 1, plays + 1, alpha, beta);
                 board[i] = ' ';
 
-                if (maxEval < eval) {
+                if (maxEval <= eval) {
                     maxEval = eval;
                     idx = i;
                 }
@@ -165,7 +177,7 @@ public class Minimax {
                 if (board[i] != ' ') continue;
 
                 board[i] = 'o';
-                int eval = maxChildEval(board, depth - 1, plays + 1);
+                int eval = maxChildEval(board, depth - 1, plays + 1, alpha, beta);
                 board[i] = ' ';
 
                 if (minEval > eval) {
@@ -178,21 +190,17 @@ public class Minimax {
     }
 
 
-    public static int minimaxPlay(char[] board, char turn, int plays) {
-        final int depth = 10;
+    public int minimaxPlay(char[] board, char turn, int plays) {
+        final int depth = 8;
         return minimaxHelper(board, turn, depth, plays);
     }
 
-    public static int greedyPlay(char[] board, char turn, int plays) {
+    public int greedyPlay(char[] board, char turn, int plays) {
         final int depth = 1;
         return minimaxHelper(board, turn, depth, plays);
     }
 
-    public static int play(char[] board, char turn, int plays) { //returns the index of play
+    public int play(char[] board, char turn, int plays) { //returns the index of play
         return minimaxPlay(board, turn, plays);
-    }
-
-    public static void test() {
-        System.out.println("test from minimax");
     }
 }

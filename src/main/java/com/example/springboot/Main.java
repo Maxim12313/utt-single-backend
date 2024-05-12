@@ -12,11 +12,12 @@ public class Main {
             board[i] = ' ';
         }
 
+        Minimax m = new Minimax();
         int plays = 0;
         boolean playerTurn = true;
         while (true) {
             if (playerTurn) {
-                Minimax.printBoard(board);
+                m.printBoard(board);
                 System.out.print("give input (row col): ");
                 String input = reader.readLine();
                 if (input.equals("exit")) break;
@@ -26,19 +27,19 @@ public class Main {
                 board[r * 3 + c] = 'x';
             }
             else {
-                int i = Minimax.play(board, 'o', plays);
+                int i = m.play(board, 'o', plays);
                 board[i] = 'o';
             }
             plays++;
 
-            char winner = Minimax.getWinner(board);
+            char winner = m.getWinner(board);
             if (winner != ' ') {
-                Minimax.printBoard(board);
+                m.printBoard(board);
                 System.out.println(winner + " won the game");
                 break;
             }
             if (plays == 9) {
-                Minimax.printBoard(board);
+                m.printBoard(board);
                 System.out.println("game was a tie");
                 break;
             }
